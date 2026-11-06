@@ -1,0 +1,35 @@
+{
+  "name": "dsh-toolbox",
+  "version": "0.5.1",
+  "type": "module",
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "client.css",
+    "cordis.patch.yml",
+    "install.ps1",
+    "README.md",
+    "LICENSE"
+  ],
+  "description": "Toolbox panel for the DeepSeek Harness Web GUI: a right-side drawer (full screen on phones) with connection info, one-click diagnostics, speed test, quality monitor, history and auto patrol; the host also registers the /api/toolbox routes.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "toolbox",
+    "diagnostics",
+    "speed-test"
+  ],
+  "engines": {
+    "dsh": ">=0.2.1-0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
