@@ -1,0 +1,8 @@
+# dsh-toolbox — 注入式工具箱。
+#
+# 本 bundle 只做一件事：插入宿主端插件行。插件 apply 时通过官方的
+# webserver/index-inject 把同目录的 client.css / client.js 内联进 index.html，
+# 并通过 ctx.connection.fetch.register 注册 /api/toolbox 路由。
+- insert:
+    - id: toolbox
+      name: 'dsh-toolbox'
