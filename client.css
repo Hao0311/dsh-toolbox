@@ -1,0 +1,1101 @@
+/* dsh-toolbox — 客户端样式（0.5.0）
+ *
+ * 规则（沿用《DSH 维护手册》手机端约定）：
+ *   · 所有规则都挂在 #dsh-toolbox-root 下，或唯一类名 button.tbx-navrow；
+ *   · 不写全局选择器、不改 DSH 布局变量；
+ *   · 颜色优先取 DSH 主题变量，取不到才退回深色兜底值；
+ *   · 桌面端 = 右侧抽屉（不压黑、不挡聊天）；粗指针 / 窄屏 = 全屏面板，可随时退出。
+ */
+
+/* ------------------------------------------------------------------ 入口：导航栏一行 */
+
+button.tbx-navrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0 2px;
+  flex: 0 0 auto;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary, #f9fafb);
+  font-size: 14px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.tbx-navrow:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+
+button.tbx-navrow:focus-visible {
+  outline: 2px solid var(--tbx-accent, #5b8cff);
+  outline-offset: 1px;
+}
+
+button.tbx-navrow svg {
+  flex: none;
+  opacity: 1;
+}
+
+/* 侧栏收起成图标轨时：只留图标，文字不竖排 */
+button.tbx-navrow[data-collapsed="1"] {
+  width: 36px;
+  margin: 0 auto;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+}
+
+button.tbx-navrow[data-collapsed="1"] span:not(.tbx-navdot) {
+  display: none;
+}
+
+button.tbx-navrow[data-collapsed="1"] .tbx-navdot {
+  position: absolute;
+  top: 8px;
+  right: 7px;
+  margin: 0;
+}
+
+/* 运行 / 巡检异常的小圆点 */
+.tbx-navdot {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  flex: none;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.tbx-navdot[data-state="running"] {
+  background: #5b8cff;
+  animation: tbx-pulse 1.1s ease-in-out infinite;
+}
+
+.tbx-navdot[data-state="alert"] {
+  background: #f87171;
+}
+
+@keyframes tbx-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+/* ------------------------------------------------------------------ 变量 / 基础 */
+
+#dsh-toolbox-root {
+  --tbx-accent: #5b8cff;
+  --tbx-accent-soft: rgba(91, 140, 255, 0.16);
+  --tbx-bg: var(--dsw-alias-bg-elevated, #232325);
+  --tbx-fg: var(--dsw-alias-label-primary, #f9fafb);
+  --tbx-fg-2: var(--dsw-alias-label-secondary, rgba(249, 250, 251, 0.64));
+  --tbx-fg-3: rgba(249, 250, 251, 0.42);
+  --tbx-line: var(--dsw-alias-border-l3, rgba(255, 255, 255, 0.10));
+  --tbx-line-2: rgba(255, 255, 255, 0.06);
+  --tbx-surface: rgba(255, 255, 255, 0.04);
+  --tbx-surface-2: rgba(255, 255, 255, 0.07);
+  --tbx-ok: #4ade80;
+  --tbx-warn: #fbbf24;
+  --tbx-bad: #f87171;
+  --tbx-ok-soft: rgba(74, 222, 128, 0.12);
+  --tbx-warn-soft: rgba(251, 191, 36, 0.12);
+  --tbx-bad-soft: rgba(248, 113, 113, 0.13);
+  font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif);
+  color: var(--tbx-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#dsh-toolbox-root *,
+#dsh-toolbox-root *::before,
+#dsh-toolbox-root *::after {
+  box-sizing: border-box;
+}
+
+#dsh-toolbox-root button {
+  font-family: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#dsh-toolbox-root button:focus-visible {
+  outline: 2px solid var(--tbx-accent);
+  outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------------ 面板外壳 */
+
+#dsh-toolbox-root .tbx-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 320;
+  display: flex;
+  flex-direction: column;
+  width: var(--tbx-panel-w, 424px);
+  max-width: 100vw;
+  background: var(--tbx-bg);
+  border-left: 1px solid var(--tbx-line);
+  box-shadow: -28px 0 70px rgba(0, 0, 0, 0.46);
+  transform: translateX(102%);
+  visibility: hidden;
+  transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1), visibility 0s linear 0.22s;
+  will-change: transform;
+}
+
+#dsh-toolbox-root[data-open="1"] .tbx-panel {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dsh-toolbox-root .tbx-panel {
+    transition: none;
+  }
+}
+
+#dsh-toolbox-root .tbx-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 14px 14px 12px 16px;
+  border-bottom: 1px solid var(--tbx-line-2);
+}
+
+#dsh-toolbox-root .tbx-hd-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+#dsh-toolbox-root .tbx-hd-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--tbx-accent-soft);
+  color: var(--tbx-accent);
+}
+
+#dsh-toolbox-root .tbx-hd-titles {
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-hd-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+
+#dsh-toolbox-root .tbx-hd-sub {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--tbx-fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#dsh-toolbox-root .tbx-hd-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+#dsh-toolbox-root .tbx-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg-2);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+#dsh-toolbox-root .tbx-pill[data-scope="lan"] { color: #86efac; background: var(--tbx-ok-soft); }
+#dsh-toolbox-root .tbx-pill[data-scope="loopback"] { color: #fde68a; background: var(--tbx-warn-soft); }
+#dsh-toolbox-root .tbx-pill[data-scope="tailnet"] { color: #fde68a; background: var(--tbx-warn-soft); }
+#dsh-toolbox-root .tbx-pill[data-scope="wan"] { color: #fca5a5; background: var(--tbx-bad-soft); }
+#dsh-toolbox-root .tbx-pill[data-scope="running"] { color: #bfdbfe; background: var(--tbx-accent-soft); }
+
+#dsh-toolbox-root .tbx-iconbtn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--tbx-fg-2);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#dsh-toolbox-root .tbx-iconbtn:hover {
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg);
+}
+
+#dsh-toolbox-root .tbx-refresh {
+  display: grid;
+  place-items: center;
+  color: inherit;
+}
+
+#dsh-toolbox-root .tbx-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 16px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+#dsh-toolbox-root .tbx-body::-webkit-scrollbar { width: 8px; }
+#dsh-toolbox-root .tbx-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 4px; }
+#dsh-toolbox-root .tbx-body::-webkit-scrollbar-track { background: transparent; }
+
+#dsh-toolbox-root .tbx-ft {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--tbx-line-2);
+  color: var(--tbx-fg-3);
+  font-size: 10.5px;
+}
+
+/* ------------------------------------------------------------------ 区块 / 标题 */
+
+#dsh-toolbox-root .tbx-sec {
+  margin-bottom: 22px;
+}
+
+#dsh-toolbox-root .tbx-sec:last-child {
+  margin-bottom: 4px;
+}
+
+#dsh-toolbox-root .tbx-sechd {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+#dsh-toolbox-root .tbx-sechd h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+#dsh-toolbox-root .tbx-sechd-actions {
+  margin-left: auto;
+}
+
+#dsh-toolbox-root .tbx-hint {
+  font-size: 11.5px;
+  color: var(--tbx-fg-3);
+  line-height: 1.45;
+}
+
+#dsh-toolbox-root .tbx-note {
+  font-size: 11px;
+  color: var(--tbx-fg-3);
+  line-height: 1.5;
+}
+
+#dsh-toolbox-root .tbx-empty {
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: var(--tbx-surface);
+  color: var(--tbx-fg-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ 连接状态 */
+
+#dsh-toolbox-root .tbx-kv {
+  display: flex;
+  flex-direction: column;
+}
+
+#dsh-toolbox-root .tbx-kvrow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--tbx-line-2);
+  font-size: 12.5px;
+}
+
+#dsh-toolbox-root .tbx-kvrow:last-child {
+  border-bottom: 0;
+}
+
+#dsh-toolbox-root .tbx-k {
+  flex: none;
+  width: 62px;
+  color: var(--tbx-fg-3);
+  font-size: 11.5px;
+}
+
+#dsh-toolbox-root .tbx-v {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  font-variant-numeric: tabular-nums;
+}
+
+#dsh-toolbox-root .tbx-v .tbx-pill {
+  margin-right: 6px;
+}
+
+#dsh-toolbox-root .tbx-v .tbx-note {
+  margin-left: 4px;
+}
+
+/* ------------------------------------------------------------------ 结论 / 指标 */
+
+#dsh-toolbox-root .tbx-verdict {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 10px 0;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--tbx-ok-soft);
+}
+
+#dsh-toolbox-root .tbx-verdict[data-level="warn"] { background: var(--tbx-warn-soft); }
+#dsh-toolbox-root .tbx-verdict[data-level="bad"] { background: var(--tbx-bad-soft); }
+
+#dsh-toolbox-root .tbx-verdict-ico {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.22);
+  color: #86efac;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#dsh-toolbox-root .tbx-verdict[data-level="warn"] .tbx-verdict-ico { background: rgba(251, 191, 36, 0.22); color: #fde68a; }
+#dsh-toolbox-root .tbx-verdict[data-level="bad"] .tbx-verdict-ico { background: rgba(248, 113, 113, 0.22); color: #fecaca; }
+
+#dsh-toolbox-root .tbx-verdict-txt {
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-verdict-txt b {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+#dsh-toolbox-root .tbx-verdict-txt p {
+  margin: 2px 0 0;
+  color: var(--tbx-fg-2);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+#dsh-toolbox-root .tbx-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+#dsh-toolbox-root .tbx-metric {
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: var(--tbx-surface);
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-metric .l {
+  color: var(--tbx-fg-3);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+#dsh-toolbox-root .tbx-metric .v {
+  margin-top: 3px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+#dsh-toolbox-root .tbx-metric .s {
+  margin-top: 1px;
+  color: var(--tbx-fg-3);
+  font-size: 10.5px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+#dsh-toolbox-root .tbx-metric--hero {
+  background: var(--tbx-surface-2);
+}
+
+#dsh-toolbox-root .tbx-metric--hero .v {
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------------ 按钮 / 分段 / chips */
+
+#dsh-toolbox-root .tbx-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--tbx-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s;
+  touch-action: manipulation;
+}
+
+#dsh-toolbox-root .tbx-btn:hover { filter: brightness(1.08); }
+#dsh-toolbox-root .tbx-btn:active { filter: brightness(0.94); }
+#dsh-toolbox-root .tbx-btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+
+#dsh-toolbox-root .tbx-btn--ghost {
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg);
+}
+
+#dsh-toolbox-root .tbx-btn--danger {
+  background: var(--tbx-bad-soft);
+  color: #fca5a5;
+}
+
+#dsh-toolbox-root .tbx-btn--sm {
+  width: auto;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+#dsh-toolbox-root .tbx-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tbx-accent);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+#dsh-toolbox-root .tbx-link:hover { text-decoration: underline; }
+
+#dsh-toolbox-root .tbx-seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: var(--tbx-surface);
+}
+
+#dsh-toolbox-root .tbx-seg button {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tbx-fg-2);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+#dsh-toolbox-root .tbx-seg button[data-on="true"] {
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg);
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+#dsh-toolbox-root .tbx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#dsh-toolbox-root .tbx-chip {
+  height: 27px;
+  padding: 0 10px;
+  border: 1px solid var(--tbx-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tbx-fg-2);
+  font-size: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#dsh-toolbox-root .tbx-chip[data-on="true"] {
+  border-color: var(--tbx-accent);
+  background: var(--tbx-accent-soft);
+  color: var(--tbx-fg);
+}
+
+#dsh-toolbox-root .tbx-chip--sm {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11.5px;
+}
+
+#dsh-toolbox-root .tbx-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 11px;
+  background: var(--tbx-surface);
+}
+
+#dsh-toolbox-root .tbx-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#dsh-toolbox-root .tbx-custom-row .tbx-k {
+  width: 32px;
+}
+
+#dsh-toolbox-root .tbx-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#dsh-toolbox-root .tbx-row-actions > .tbx-btn {
+  width: auto;
+  flex: none;
+}
+
+#dsh-toolbox-root .tbx-row-actions > .tbx-hint {
+  flex: 1;
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-row-actions--top {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ 运行中 / 进度 */
+
+#dsh-toolbox-root .tbx-card {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: var(--tbx-surface);
+}
+
+#dsh-toolbox-root .tbx-jobline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#dsh-toolbox-root .tbx-jobline-txt {
+  flex: 1;
+  min-width: 0;
+  color: var(--tbx-fg-2);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#dsh-toolbox-root .tbx-spin {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--tbx-accent);
+  animation: tbx-spin 0.8s linear infinite;
+}
+
+@keyframes tbx-spin {
+  to { transform: rotate(360deg); }
+}
+
+#dsh-toolbox-root .tbx-prog {
+  height: 4px;
+  margin: 8px 0;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+#dsh-toolbox-root .tbx-prog i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--tbx-accent);
+  transition: width 0.18s linear;
+}
+
+/* 面板关掉时的顶部细进度线（不挡任何操作） */
+#dsh-toolbox-root .tbx-progress-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 319;
+  display: none;
+  pointer-events: none;
+}
+
+#dsh-toolbox-root .tbx-progress-top[data-on="1"] {
+  display: block;
+}
+
+#dsh-toolbox-root .tbx-progress-top i {
+  display: block;
+  height: 100%;
+  width: 2%;
+  background: linear-gradient(90deg, #5b8cff, #8fb0ff);
+  transition: width 0.18s linear;
+}
+
+/* ------------------------------------------------------------------ 实时读数 / 曲线 */
+
+#dsh-toolbox-root .tbx-live {
+  margin-bottom: 10px;
+}
+
+#dsh-toolbox-root .tbx-live-num {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+#dsh-toolbox-root .tbx-live-num b {
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+#dsh-toolbox-root .tbx-live-unit {
+  color: var(--tbx-fg-3);
+  font-size: 11.5px;
+}
+
+#dsh-toolbox-root .tbx-live-sub {
+  margin-top: 2px;
+  color: var(--tbx-fg-3);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+#dsh-toolbox-root .tbx-chartwrap {
+  margin: 8px 0 10px;
+  padding: 6px 8px 2px;
+  border-radius: 11px;
+  background: var(--tbx-surface);
+}
+
+#dsh-toolbox-root .tbx-chart {
+  display: block;
+  width: 100%;
+  height: 86px;
+}
+
+#dsh-toolbox-root .tbx-chart--mini {
+  height: 64px;
+}
+
+/* ------------------------------------------------------------------ 体检明细 */
+
+#dsh-toolbox-root .tbx-details {
+  margin: 6px 0 4px;
+  border-radius: 10px;
+}
+
+#dsh-toolbox-root .tbx-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 6px 2px;
+  color: var(--tbx-fg-2);
+  font-size: 12px;
+  user-select: none;
+}
+
+#dsh-toolbox-root .tbx-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+#dsh-toolbox-root .tbx-details > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 14px;
+  color: var(--tbx-fg-3);
+  transition: transform 0.15s;
+}
+
+#dsh-toolbox-root .tbx-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+#dsh-toolbox-root .tbx-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 6px;
+}
+
+#dsh-toolbox-root .tbx-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 2px;
+  font-size: 12px;
+}
+
+#dsh-toolbox-root .tbx-detail-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  align-self: center;
+  border-radius: 50%;
+  background: var(--tbx-ok);
+}
+
+#dsh-toolbox-root .tbx-detail-row[data-level="warn"] .tbx-detail-dot { background: var(--tbx-warn); }
+#dsh-toolbox-root .tbx-detail-row[data-level="bad"] .tbx-detail-dot { background: var(--tbx-bad); }
+
+#dsh-toolbox-root .tbx-detail-label {
+  flex: none;
+  width: 56px;
+  color: var(--tbx-fg-3);
+  font-size: 11.5px;
+}
+
+#dsh-toolbox-root .tbx-detail-value {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+#dsh-toolbox-root .tbx-detail-hint {
+  flex: none;
+  max-width: 44%;
+  color: var(--tbx-fg-3);
+  font-size: 10.5px;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------------ 历史 */
+
+#dsh-toolbox-root .tbx-hlist {
+  display: flex;
+  flex-direction: column;
+}
+
+#dsh-toolbox-root .tbx-hrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--tbx-line-2);
+}
+
+#dsh-toolbox-root .tbx-hrow:last-child {
+  border-bottom: 0;
+}
+
+#dsh-toolbox-root .tbx-hico {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg-2);
+  font-size: 12px;
+}
+
+#dsh-toolbox-root .tbx-hmid {
+  flex: 1;
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-hsum {
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#dsh-toolbox-root .tbx-htime {
+  margin-top: 1px;
+  color: var(--tbx-fg-3);
+  font-size: 10.5px;
+}
+
+#dsh-toolbox-root .tbx-badge {
+  flex: none;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--tbx-surface-2);
+  color: var(--tbx-fg-2);
+  font-size: 10.5px;
+}
+
+#dsh-toolbox-root .tbx-badge[data-level="ok"] { color: #86efac; background: var(--tbx-ok-soft); }
+#dsh-toolbox-root .tbx-badge[data-level="warn"] { color: #fde68a; background: var(--tbx-warn-soft); }
+#dsh-toolbox-root .tbx-badge[data-level="bad"] { color: #fca5a5; background: var(--tbx-bad-soft); }
+
+/* ------------------------------------------------------------------ 自动巡检 / 开关 */
+
+#dsh-toolbox-root .tbx-switchrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--tbx-surface);
+}
+
+#dsh-toolbox-root .tbx-switchrow-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+#dsh-toolbox-root .tbx-switchrow-title {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+#dsh-toolbox-root .tbx-switchrow .tbx-hint {
+  margin-top: 1px;
+}
+
+#dsh-toolbox-root .tbx-switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: background 0.16s;
+}
+
+#dsh-toolbox-root .tbx-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.16s;
+}
+
+#dsh-toolbox-root .tbx-switch[data-on="true"] {
+  background: var(--tbx-accent);
+}
+
+#dsh-toolbox-root .tbx-switch[data-on="true"]::after {
+  transform: translateX(16px);
+}
+
+#dsh-toolbox-root .tbx-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 2px 0;
+  font-size: 11.5px;
+  color: var(--tbx-fg-3);
+}
+
+#dsh-toolbox-root .tbx-inline--warn {
+  color: #fde68a;
+}
+
+/* ------------------------------------------------------------------ toast */
+
+#dsh-toolbox-root .tbx-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  z-index: 321;
+  max-width: min(78vw, 420px);
+  padding: 8px 14px;
+  border: 1px solid var(--tbx-line);
+  border-radius: 10px;
+  background: rgba(40, 40, 45, 0.97);
+  color: var(--tbx-fg);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+#dsh-toolbox-root .tbx-toast[data-on="1"] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ------------------------------------------------------------------ 手机 / 粗指针 */
+
+@media (pointer: coarse), (max-width: 1023px) {
+  #dsh-toolbox-root .tbx-panel {
+    left: 0;
+    width: auto;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: translateX(100%);
+  }
+
+  #dsh-toolbox-root[data-open="1"] .tbx-panel {
+    transform: none;
+  }
+
+  #dsh-toolbox-root .tbx-hd {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px 16px;
+  }
+
+  #dsh-toolbox-root .tbx-hd-titles {
+    flex: 1;
+  }
+
+  #dsh-toolbox-root .tbx-hd-title {
+    font-size: 16px;
+  }
+
+  #dsh-toolbox-root .tbx-hd-sub {
+    font-size: 11.5px;
+  }
+
+  #dsh-toolbox-root .tbx-iconbtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  #dsh-toolbox-root .tbx-body {
+    padding: 14px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #dsh-toolbox-root .tbx-ft {
+    display: none;
+  }
+
+  #dsh-toolbox-root .tbx-btn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  #dsh-toolbox-root .tbx-btn--sm {
+    min-height: 32px;
+    font-size: 12.5px;
+  }
+
+  #dsh-toolbox-root .tbx-seg button {
+    height: 34px;
+    font-size: 13px;
+  }
+
+  #dsh-toolbox-root .tbx-chip {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  #dsh-toolbox-root .tbx-chip--sm {
+    height: 28px;
+    font-size: 12px;
+  }
+
+  #dsh-toolbox-root .tbx-metric--hero .v {
+    font-size: 21px;
+  }
+
+  #dsh-toolbox-root .tbx-live-num b {
+    font-size: 38px;
+  }
+
+  #dsh-toolbox-root .tbx-chart {
+    height: 104px;
+  }
+
+  #dsh-toolbox-root .tbx-toast {
+    top: calc(env(safe-area-inset-top, 0px) + 64px);
+    bottom: auto;
+    transform: translate(-50%, -8px);
+  }
+
+  #dsh-toolbox-root .tbx-toast[data-on="1"] {
+    transform: translate(-50%, 0);
+  }
+
+  #dsh-toolbox-root .tbx-detail-hint {
+    max-width: 40%;
+  }
+}
