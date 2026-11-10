@@ -42,16 +42,23 @@ DSH Web GUI 里的工具箱：左侧导航（手机上在抽屉里）多一行�
 
 ## 安装 / 更新
 
-```powershell
-powershell -NoProfile -File C:\Users\guolz\Desktop\Self\plugins\dsh-toolbox\install.ps1
+```sh
+dsh plugin --profile web add github:Hao0311/dsh-toolbox
 ```
 
-脚本做两件事：把本目录同步到 `~/.dsh/profiles/web/node_modules/dsh-toolbox/`，
+> npm 上有 ldchao 的同名包 `dsh-toolbox`（股票盯盘 + 小说阅读器，不是本插件），
+> `dsh plugin add dsh-toolbox` 会装错，务必用上面的 `github:` 来源。
+
+开发时用本目录的同步脚本：把本目录同步到 `~/.dsh/profiles/web/node_modules/dsh-toolbox/`，
 并在 `cordis.patch.yml` 的标记块里加入 `insert:` 条目（幂等，重复跑不会重复写）。
+
+```powershell
+powershell -NoProfile -File D:\Workspaces\DSH\plugins\dsh-toolbox\install.ps1
+```
 
 - **只改 `client.js` / `client.css`**：跑 install.ps1 后浏览器刷新即可，**不用重启 DSH**。
 - **改了 `index.js`**：需要重启 DSH（插件只在启动时装载）：
-  `powershell -NoProfile -File C:\Users\guolz\Desktop\Self\tools\dsh\dsh-restart.ps1`
+  `powershell -NoProfile -File D:\Workspaces\DSH\tools\dsh\dsh-restart.ps1`
 
 > 注意：用 PowerShell 5.1 读写本目录的中文文件时别用 `Get-Content`/`Set-Content` 改内容
 > （默认按 ANSI 读会把 UTF-8 中文写坏）；改文件用编辑器或 Node 脚本。
@@ -91,7 +98,7 @@ official `webserver/index-inject` hook, so no client build step is needed.
 Install:
 
 ```sh
-dsh plugin --profile web add dsh-toolbox
+dsh plugin --profile web add github:Hao0311/dsh-toolbox
 ```
 
 The plugin is web-only; without the `connection` service it stays inactive.
