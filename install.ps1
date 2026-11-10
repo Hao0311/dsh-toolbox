@@ -13,7 +13,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$Src        = 'D:\Workspaces\DSH\plugins\dsh-toolbox'
+$Src        = $PSScriptRoot   # this script lives in the plugin dir; no machine-specific path
 $ProfileDir = Join-Path $env:USERPROFILE '.dsh\profiles\web'
 $Dest       = Join-Path $ProfileDir 'node_modules\dsh-toolbox'
 $PatchFile  = Join-Path $ProfileDir 'cordis.patch.yml'
