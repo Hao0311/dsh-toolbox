@@ -102,3 +102,11 @@ dsh plugin --profile web add github:Hao0311/dsh-toolbox
 ```
 
 The plugin is web-only; without the `connection` service it stays inactive.
+
+---
+
+Listed on the [awesome-dsh-plugin market](https://awesome-dsh-plugin.com/p/Hao0311/dsh-toolbox/).
+
+```sh
+dsh plugin --profile web add github:Hao0311/dsh-toolbox
+```
