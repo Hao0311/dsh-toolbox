@@ -1,35 +1,31 @@
 {
-  "name": "dsh-toolbox",
+  "name": "@hao0311/dsh-toolbox",
   "version": "0.5.1",
   "type": "module",
-  "license": "MIT",
   "main": "index.js",
   "exports": {
     ".": "./index.js"
   },
-  "files": [
-    "index.js",
-    "client.js",
-    "client.css",
-    "cordis.patch.yml",
-    "install.ps1",
-    "README.md",
-    "LICENSE"
-  ],
-  "description": "Toolbox panel for the DeepSeek Harness Web GUI: a right-side drawer (full screen on phones) with connection info, one-click diagnostics, speed test, quality monitor, history and auto patrol; the host also registers the /api/toolbox routes.",
+  "description": "Toolbox panel for the DeepSeek Harness Web GUI: a right-side drawer (full screen on phones) with connection information, one-click diagnostics, a speed test, a quality monitor, history and auto patrol.",
   "keywords": [
     "dsh",
     "dsh-plugin",
+    "deepseek-harness",
     "toolbox",
     "diagnostics",
-    "speed-test"
+    "speed-test",
+    "ui"
   ],
-  "engines": {
-    "dsh": ">=0.2.1-0"
+  "license": "MIT",
+  "homepage": "https://awesome-dsh-plugin.com/p/Hao0311/dsh-toolbox/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hao0311/dsh-toolbox.git"
   },
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
+  "bugs": {
+    "url": "https://github.com/Hao0311/dsh-toolbox/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
