@@ -43,11 +43,10 @@ DSH Web GUI 里的工具箱：左侧导航（手机上在抽屉里）多一行�
 ## 安装 / 更新
 
 ```sh
-dsh plugin --profile web add github:Hao0311/dsh-toolbox
+dsh plugin --profile web add @hao0311/dsh-toolbox
 ```
 
-> npm 上有 ldchao 的同名包 `dsh-toolbox`（股票盯盘 + 小说阅读器，不是本插件），
-> `dsh plugin add dsh-toolbox` 会装错，务必用上面的 `github:` 来源。
+> npm 包名是 `@hao0311/dsh-toolbox`（裸名 `dsh-toolbox` 是 ldchao 的另一个插件，别装错）。
 
 开发时用本目录的同步脚本：把本目录同步到 `~/.dsh/profiles/web/node_modules/dsh-toolbox/`，
 并在 `cordis.patch.yml` 的标记块里加入 `insert:` 条目（幂等，重复跑不会重复写）。
@@ -98,7 +97,7 @@ official `webserver/index-inject` hook, so no client build step is needed.
 Install:
 
 ```sh
-dsh plugin --profile web add github:Hao0311/dsh-toolbox
+dsh plugin --profile web add @hao0311/dsh-toolbox
 ```
 
 The plugin is web-only; without the `connection` service it stays inactive.
@@ -108,7 +107,7 @@ The plugin is web-only; without the `connection` service it stays inactive.
 Listed on the [awesome-dsh-plugin market](https://awesome-dsh-plugin.com/p/Hao0311/dsh-toolbox/).
 
 ```sh
-dsh plugin --profile web add github:Hao0311/dsh-toolbox
+dsh plugin --profile web add @hao0311/dsh-toolbox
 ```
 
 
